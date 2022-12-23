@@ -1,0 +1,30 @@
+apiVersion: kubescheduler.config.k8s.io/v1beta1
+kind: KubeSchedulerConfiguration
+clientConnection:
+  kubeconfig: /etc/scheduler/scheduler.conf
+leaderElection:
+  leaderElect: true
+  leaseDuration: 15s
+  renewDeadline: 10s
+  retryPeriod: 2s
+  resourceLock: leases
+  resourceName: extend-scheduler
+  resourceNamespace: kube-system
+percentageOfNodesToScore: 0
+podInitialBackoffSeconds: 1
+podMaxBackoffSeconds: 10
+profiles:
+  - schedulerName: extend-scheduler
+    plugins:
+      score:
+        enabled:
+        - name: "NetworkTraffic"
+          weight: 2
+        disabled:
+        - name: "*"
+    pluginConfig:
+      - name: "NetworkTraffic"
+        args:
+          ip: "http://10.112.0.85:38090"
+          deviceName: "eth0"
+          timeRange: 60

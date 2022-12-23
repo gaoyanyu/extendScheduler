@@ -38,8 +38,7 @@ func NewProme(ip, deviceName string, timeRace time.Duration) *PrometheusHandle {
 }
 
 func (p *PrometheusHandle) GetGauge(node string) (*model.Sample, error) {
-
-	value, err := p.query(fmt.Sprintf(nodeMeasureQueryTemplate, node, p.deviceName, p.timeRange))
+	value, err := p.query(fmt.Sprintf(nodeMeasureQueryTemplate, p.deviceName, p.timeRange, node))
 	fmt.Println(fmt.Sprintf(nodeMeasureQueryTemplate, p.deviceName, p.timeRange, node))
 	if err != nil {
 		return nil, fmt.Errorf("[NetworkTraffic Plugin] Error querying prometheus: %w", err)
