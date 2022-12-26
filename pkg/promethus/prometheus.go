@@ -1,4 +1,4 @@
-package pkg
+package promethus
 
 import (
 	"github.com/prometheus/client_golang/api"
@@ -13,7 +13,6 @@ import (
 
 const (
 	// nodeMeasureQueryTemplate is the template string to get the query for the node used bandwidth
-	// nodeMeasureQueryTemplate = "sum_over_time(node_network_receive_bytes_total{device=\"%s\"}[%ss])"
 	nodeMeasureQueryTemplate = "sum_over_time(node_network_receive_bytes_total{device=\"%s\"}[%ss]) * on(instance) group_left(nodename) (node_uname_info{nodename=\"%s\"})"
 )
 

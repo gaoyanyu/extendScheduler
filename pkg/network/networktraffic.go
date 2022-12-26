@@ -1,7 +1,8 @@
-package pkg
+package network
 
 import (
 	"context"
+	"extendScheduler/pkg/promethus"
 	"fmt"
 	"time"
 
@@ -17,7 +18,7 @@ const Name = "NetworkTraffic"
 var _ = framework.ScorePlugin(&NetworkTraffic{})
 
 type NetworkTraffic struct {
-	prometheus *PrometheusHandle
+	prometheus *promethus.PrometheusHandle
 	// FrameworkHandle 提供插件可以使用的数据和一些工具。
 	// 它在插件初始化时传递给 plugin 工厂类。
 	// plugin 必须存储和使用这个handle来调用framework函数。
@@ -42,7 +43,7 @@ func New(plArgs runtime.Object, h framework.FrameworkHandle) (framework.Plugin, 
 
 	return &NetworkTraffic{
 		handle:     h,
-		prometheus: NewProme(args.IP, args.DeviceName, time.Minute*time.Duration(args.TimeRange)),
+		prometheus: promethus.NewProme(args.IP, args.DeviceName, time.Minute*time.Duration(args.TimeRange)),
 	}, nil
 }
 
