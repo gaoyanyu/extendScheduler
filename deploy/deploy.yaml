@@ -57,12 +57,12 @@ data:
         plugins:
           score:
             enabled:
-            - name: "NetworkTraffic"
+            - name: "DiskIO"
               weight: 100
             disabled:
             - name: "*"
         pluginConfig:
-          - name: "NetworkTraffic"
+          - name: "DiskIO"
             args:
               ip: "http://10.112.0.85:38090"
               deviceName: "eth0"

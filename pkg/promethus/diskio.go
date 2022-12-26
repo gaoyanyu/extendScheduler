@@ -21,29 +21,29 @@ type PromDiskIOHandle struct {
 	client     v1.API
 }
 
-func NewDiskIOProme(ip string, timeRace time.Duration) *PromDiskIOHandle {
+func NewDiskIOProme(ip string, timeRange time.Duration) *PromDiskIOHandle {
 	client, err := api.NewClient(api.Config{Address: ip})
 	if err != nil {
-		klog.Fatalf("[DiskIO Plugin] FatalError creating prometheus client: %s", err.Error())
+		klog.Fatalf("[DiskIO] FatalError creating prometheus client: %s", err.Error())
 	}
 	return &PromDiskIOHandle{
 		ip:         ip,
-		timeRange:  timeRace,
+		timeRange:  timeRange,
 		client:     v1.NewAPI(client),
 	}
 }
 
 func (p *PromDiskIOHandle) GetGauge(node string) (*model.Sample, error) {
-	klog.Infof("[DiskIO Prometheus] query: %s", fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange))
+	klog.Infof("[DiskIO] Prometheus query: %s", fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange))
 
 	value, err := p.query(fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange))
 	if err != nil {
-		return nil, fmt.Errorf("[DiskIO Plugin] Error querying prometheus: %w", err)
+		return nil, fmt.Errorf("[DiskIO] Error querying prometheus: %w", err)
 	}
 
 	nodeMeasure := value.(model.Vector)
 	if len(nodeMeasure) != 1 {
-		return nil, fmt.Errorf("[DiskIO Plugin] Invalid response, expected 1 value, got %d", len(nodeMeasure))
+		return nil, fmt.Errorf("[DiskIO] Invalid response, expected 1 value, got %d", len(nodeMeasure))
 	}
 	return nodeMeasure[0], nil
 }
@@ -51,7 +51,7 @@ func (p *PromDiskIOHandle) GetGauge(node string) (*model.Sample, error) {
 func (p *PromDiskIOHandle) query(promQL string) (model.Value, error) {
 	results, warnings, err := p.client.Query(context.Background(), promQL, time.Now())
 	if len(warnings) > 0 {
-		klog.Warningf("[DiskIO Plugin] Warnings: %v\n", warnings)
+		klog.Warningf("[DiskIO] Warnings: %v\n", warnings)
 	}
 
 	return results, err

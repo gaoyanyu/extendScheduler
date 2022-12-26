@@ -26,7 +26,7 @@ type PrometheusHandle struct {
 func NewProme(ip, deviceName string, timeRace time.Duration) *PrometheusHandle {
 	client, err := api.NewClient(api.Config{Address: ip})
 	if err != nil {
-		klog.Fatalf("[NetworkTraffic Plugin] FatalError creating prometheus client: %s", err.Error())
+		klog.Fatalf("[NetworkTraffic] FatalError creating prometheus client: %s", err.Error())
 	}
 	return &PrometheusHandle{
 		deviceName: deviceName,
@@ -40,12 +40,12 @@ func (p *PrometheusHandle) GetGauge(node string) (*model.Sample, error) {
 	value, err := p.query(fmt.Sprintf(nodeMeasureQueryTemplate, p.deviceName, p.timeRange, node))
 	fmt.Println(fmt.Sprintf(nodeMeasureQueryTemplate, p.deviceName, p.timeRange, node))
 	if err != nil {
-		return nil, fmt.Errorf("[NetworkTraffic Plugin] Error querying prometheus: %w", err)
+		return nil, fmt.Errorf("[NetworkTraffic] Error querying prometheus: %w", err)
 	}
 
 	nodeMeasure := value.(model.Vector)
 	if len(nodeMeasure) != 1 {
-		return nil, fmt.Errorf("[NetworkTraffic Plugin] Invalid response, expected 1 value, got %d", len(nodeMeasure))
+		return nil, fmt.Errorf("[NetworkTraffic] Invalid response, expected 1 value, got %d", len(nodeMeasure))
 	}
 	return nodeMeasure[0], nil
 }
@@ -53,7 +53,7 @@ func (p *PrometheusHandle) GetGauge(node string) (*model.Sample, error) {
 func (p *PrometheusHandle) query(promQL string) (model.Value, error) {
 	results, warnings, err := p.client.Query(context.Background(), promQL, time.Now())
 	if len(warnings) > 0 {
-		klog.Warningf("[NetworkTraffic Plugin] Warnings: %v\n", warnings)
+		klog.Warningf("[NetworkTraffic] Warnings: %v\n", warnings)
 	}
 
 	return results, err

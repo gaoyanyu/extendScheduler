@@ -38,11 +38,11 @@ func New(plArgs runtime.Object, h framework.FrameworkHandle) (framework.Plugin, 
 		return nil, err
 	}
 
-	klog.Infof("[DiskIO] args received. TimeRange: %d, Address: %s", args.TimeRange, args.IP)
+	klog.Infof("[DiskIO Plugin] args received. TimeRange: %d, Address: %s", args.TimeRange, args.IP)
 
 	return &DiskIO{
 		handle:     h,
-		prometheus: promethus.NewDiskIOProme(args.IP, time.Second*time.Duration(args.TimeRange)),
+		prometheus: promethus.NewDiskIOProme(args.IP, time.Duration(args.TimeRange)),
 	}, nil
 }
 
@@ -68,10 +68,9 @@ func (d *DiskIO) NormalizeScore(ctx context.Context, state *framework.CycleState
 	// 公式的计算结果为，DiskIO越大的机器，分数越低
 	for i, node := range scores {
 		scores[i].Score = framework.MaxNodeScore - (node.Score * 100 / higherScore)
-		klog.Infof("[DiskIO] Nodes final score: %v", scores)
 	}
 
-	klog.Infof("[DiskIO] Nodes final score: %v", scores)
+	klog.Infof("[DiskIO Plugin] Nodes final score: %v", scores)
 	return nil
 }
 
@@ -81,6 +80,6 @@ func (d *DiskIO) Score(ctx context.Context, state *framework.CycleState, p *core
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("error getting node disk io measure: %s", err))
 	}
 	diskIO := int64(nodeDiskIO.Value)
-	klog.Infof("[DiskIO] node '%s' diskIO: %d", nodeName, diskIO)
+	klog.Infof("[DiskIO Plugin] node '%s' diskIO: %d", nodeName, diskIO)
 	return diskIO, nil
 }
