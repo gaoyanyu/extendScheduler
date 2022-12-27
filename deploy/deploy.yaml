@@ -58,13 +58,12 @@ data:
           score:
             enabled:
             - name: "DiskIO"
-              weight: 100
-            disabled:
-            - name: "*"
+              weight: 5
         pluginConfig:
           - name: "DiskIO"
             args:
-              ip: "http://10.112.0.85:38090"
+              #ip: "http://thanos-query.autox.local"
+              ip: "http://thanos-query.oam-system.svc.cluster.local:9090"
               deviceName: "eth0"
               timeRange: 60
 ---

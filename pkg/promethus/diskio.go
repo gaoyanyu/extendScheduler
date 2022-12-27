@@ -12,7 +12,7 @@ import (
 
 const (
 	// nodeDiskIOQueryTemplate is the template string to get the query for the node used bandwidth
-	nodeDiskIOQueryTemplate = "max(rate(node_disk_written_bytes_total{nodename=\"%s\"}[%ds]))"
+	nodeDiskIOQueryTemplate = "max(rate(node_disk_written_bytes_total{nodename=\"%s\"}[%ds])) + max(rate(node_disk_read_bytes_total{nodename=\"%s\"}[%ds]))"
 )
 
 type PromDiskIOHandle struct {
@@ -34,11 +34,9 @@ func NewDiskIOProme(ip string, timeRange time.Duration) *PromDiskIOHandle {
 }
 
 func (p *PromDiskIOHandle) GetGauge(node string) (*model.Sample, error) {
-	klog.Infof("[DiskIO] Prometheus query: %s", fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange))
-
-	value, err := p.query(fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange))
+	value, err := p.query(fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange, node, p.timeRange))
 	if err != nil {
-		return nil, fmt.Errorf("[DiskIO] Error querying prometheus: %w", err)
+		return nil, fmt.Errorf("[DiskIO] GetGauge err: %w", err)
 	}
 
 	nodeMeasure := value.(model.Vector)
@@ -50,8 +48,11 @@ func (p *PromDiskIOHandle) GetGauge(node string) (*model.Sample, error) {
 
 func (p *PromDiskIOHandle) query(promQL string) (model.Value, error) {
 	results, warnings, err := p.client.Query(context.Background(), promQL, time.Now())
+	if err != nil {
+		klog.Errorf("[DiskIO] Error querying: %v\n", err)
+	}
 	if len(warnings) > 0 {
-		klog.Warningf("[DiskIO] Warnings: %v\n", warnings)
+		klog.Warningf("[DiskIO] Warnings querying: %v\n", warnings)
 	}
 
 	return results, err
