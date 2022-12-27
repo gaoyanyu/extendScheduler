@@ -62,7 +62,6 @@ data:
         pluginConfig:
           - name: "DiskIO"
             args:
-              #ip: "http://thanos-query.autox.local"
               ip: "http://thanos-query.oam-system.svc.cluster.local:9090"
               deviceName: "eth0"
               timeRange: 60
