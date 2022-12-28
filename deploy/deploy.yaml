@@ -58,7 +58,7 @@ data:
           score:
             enabled:
             - name: "DiskIO"
-              weight: 5
+              weight: 3
         pluginConfig:
           - name: "DiskIO"
             args:
@@ -106,3 +106,9 @@ spec:
           volumeMounts:
             - name: scheduler-config
               mountPath: /etc/scheduler1
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/oam
+          operator: Exists
+      nodeSelector:
+          oam: oam

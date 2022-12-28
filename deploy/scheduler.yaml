@@ -19,7 +19,7 @@ profiles:
       score:
         enabled:
         - name: "DiskIO"
-          weight: 5
+          weight: 3
     pluginConfig:
       - name: "DiskIO"
         args:
