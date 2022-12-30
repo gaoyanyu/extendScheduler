@@ -64,7 +64,7 @@ data:
             args:
               ip: "http://prometheus-scheduler.kube-system.svc.cluster.local:9190"
               deviceName: "eth0"
-              timeRange: 60
+              timeRange: 30
 ---
 apiVersion: apps/v1
 kind: Deployment

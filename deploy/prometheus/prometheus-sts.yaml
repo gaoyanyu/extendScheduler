@@ -8,7 +8,7 @@ metadata:
 spec:
   serviceName: prometheus-headless
   podManagementPolicy: Parallel
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: prometheus-scheduler
@@ -56,11 +56,11 @@ spec:
             - --web.listen-address=:9190
             - --config.file=/etc/prometheus/config/prometheus.yaml
             - --storage.tsdb.path=/prometheus
-            - --storage.tsdb.retention.time=20m
+            - --storage.tsdb.retention.time=10m
             - --web.enable-lifecycle
             - --storage.tsdb.no-lockfile
-            - --storage.tsdb.min-block-duration=20m
-            - --storage.tsdb.max-block-duration=20m
+            - --storage.tsdb.min-block-duration=10m
+            - --storage.tsdb.max-block-duration=10m
             - --log.level=info
           ports:
             - containerPort: 9190
@@ -100,11 +100,6 @@ spec:
               name: prometheus-config
             - name: localtime
               mountPath: /etc/localtime
-          securityContext:
-            runAsUser: 1000
-            runAsNonRoot: true
-            runAsGroup: 65534
-            fsGroup: 2000
       volumes:
         - name: prometheus-config-out
           emptyDir: {}
