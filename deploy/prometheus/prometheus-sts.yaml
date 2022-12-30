@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus
+  namespace: kube-system
+  labels:
+    app: prometheus-scheduler
+spec:
+  serviceName: prometheus-headless
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-scheduler
+  template:
+    metadata:
+      labels:
+        app: prometheus-scheduler
+    spec:
+      tolerations:
+        - key: "node.kubernetes.io/unschedulable"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - effect: "NoSchedule"
+          key: "node-role.kubernetes.io/oam"
+          operator: "Exists"
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      serviceAccountName: prometheus-scheduler
+      securityContext:
+        runAsUser: 0
+#        fsGroup: 2000
+#        runAsUser: 1000
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: oam
+                    operator: In
+                    values:
+                      - oam
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - prometheus
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.33.3
+          args:
+            - --web.listen-address=:9190
+            - --config.file=/etc/prometheus/config/prometheus.yaml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time=20m
+            - --web.enable-lifecycle
+            - --storage.tsdb.no-lockfile
+            - --storage.tsdb.min-block-duration=20m
+            - --storage.tsdb.max-block-duration=20m
+            - --log.level=info
+          ports:
+            - containerPort: 9190
+              name: web
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 4
+              memory: 16Gi
+            requests:
+              cpu: 4
+              memory: 16Gi
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /-/healthy
+              port: web
+              scheme: HTTP
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          readinessProbe:
+            failureThreshold: 120
+            httpGet:
+              path: /-/ready
+              port: web
+              scheme: HTTP
+            periodSeconds: 5
+            initialDelaySeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          volumeMounts:
+            - mountPath: /etc/prometheus/config_out
+              name: prometheus-config-out
+              readOnly: true
+            - mountPath: /etc/prometheus/config
+              name: prometheus-config
+            - name: localtime
+              mountPath: /etc/localtime
+          securityContext:
+            runAsUser: 1000
+            runAsNonRoot: true
+            runAsGroup: 65534
+            fsGroup: 2000
+      volumes:
+        - name: prometheus-config-out
+          emptyDir: {}
+        - name: prometheus-config
+          configMap:
+            defaultMode: 420
+            name: prometheus-config
+        - name: localtime
+          hostPath:
+            path: /etc/localtime

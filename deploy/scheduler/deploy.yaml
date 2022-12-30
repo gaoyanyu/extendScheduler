@@ -43,9 +43,9 @@ data:
       kubeconfig: /etc/scheduler/scheduler.conf
     leaderElection:
       leaderElect: true
-      leaseDuration: 15s
-      renewDeadline: 10s
-      retryPeriod: 2s
+      leaseDuration: 30s
+      renewDeadline: 15s
+      retryPeriod: 10s
       resourceLock: leases
       resourceName: extend-scheduler
       resourceNamespace: kube-system
@@ -62,7 +62,7 @@ data:
         pluginConfig:
           - name: "DiskIO"
             args:
-              ip: "http://thanos-query.oam-system.svc.cluster.local:9090"
+              ip: "http://prometheus-scheduler.kube-system.svc.cluster.local:9090"
               deviceName: "eth0"
               timeRange: 60
 ---
@@ -74,6 +74,7 @@ metadata:
   labels:
     component: extend-scheduler
 spec:
+  replicas: 2
   selector:
     matchLabels:
       component: extend-scheduler
@@ -82,6 +83,16 @@ spec:
       labels:
         component: extend-scheduler
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: component
+                    operator: In
+                    values:
+                      - extend-scheduler
+              topologyKey: kubernetes.io/hostname
       serviceAccountName: extend-scheduler-sa
       priorityClassName: system-cluster-critical
       volumes:
@@ -90,22 +101,24 @@ spec:
             name: scheduler-config2
       containers:
         - name: scheduler
-          image: hub.autox.tech/library/extend-scheduler:v0.5
+          image: hub.autox.tech/library/extend-scheduler:v1.6
           imagePullPolicy: IfNotPresent
+          livenessProbe:
           command:
             - ./scheduler
             - --config=/etc/scheduler/scheduler.yaml
             - --v=3
           resources:
             requests:
-              cpu: "500m"
-              memory: 4Gi
+              cpu: 2
+              memory: 8Gi
             limits:
-              cpu: "500m"
-              memory: 4Gi
+              cpu: 2
+              memory: 8Gi
           volumeMounts:
             - name: scheduler-config
-              mountPath: /etc/scheduler1
+              mountPath: /etc/scheduler/scheduler.yaml
+              subPath: scheduler.yaml
       tolerations:
         - effect: NoSchedule
           key: node-role.kubernetes.io/oam

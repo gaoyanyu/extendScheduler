@@ -1,0 +1,36 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-scheduler-np
+  namespace: kube-system
+  labels:
+    app: prometheus-scheduler
+spec:
+  type: NodePort
+  selector:
+    app: prometheus-scheduler
+  ports:
+    - name: web
+      protocol: TCP
+      port: 9190
+      targetPort: web
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-scheduler
+  namespace: kube-system
+  labels:
+    app: prometheus-scheduler
+  annotations:
+    prometheus.io/port: "9190"
+    prometheus.io/scrape: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus-scheduler
+  ports:
+    - name: web
+      protocol: TCP
+      port: 9190
+      targetPort: web

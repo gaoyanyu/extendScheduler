@@ -77,7 +77,9 @@ func (d *DiskIO) NormalizeScore(ctx context.Context, state *framework.CycleState
 func (d *DiskIO) Score(ctx context.Context, state *framework.CycleState, p *corev1.Pod, nodeName string) (int64, *framework.Status) {
 	nodeDiskIO, err := d.prometheus.GetGauge(nodeName)
 	if err != nil {
-		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("error getting node disk io measure: %s", err))
+		//ignore it when getting node disk io err from prometheus, pod scheduling can't be blocked here.
+		klog.Errorf("[DiskIO] score err: %s", err)
+		return framework.MinNodeScore + 1, framework.NewStatus(framework.Success, fmt.Sprintf("get node disk io err: %s, but ignore", err))
 	}
 	diskIO := int64(nodeDiskIO.Value)
 	klog.Infof("[DiskIO Plugin] node '%s' diskIO: %d", nodeName, diskIO)

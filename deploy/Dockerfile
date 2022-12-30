@@ -9,6 +9,5 @@ RUN \
 FROM golang:1.18.5-alpine AS runner
 WORKDIR /go/scheduler
 COPY --from=builder /scheduler/scheduler .
-COPY --from=builder /scheduler/deploy/scheduler.yaml /etc/scheduler/
 COPY --from=builder /scheduler/secret/scheduler.conf /etc/scheduler/
 CMD ["./scheduler"]

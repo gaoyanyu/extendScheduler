@@ -36,12 +36,14 @@ func NewDiskIOProme(ip string, timeRange time.Duration) *PromDiskIOHandle {
 func (p *PromDiskIOHandle) GetGauge(node string) (*model.Sample, error) {
 	value, err := p.query(fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange, node, p.timeRange))
 	if err != nil {
+		//klog.Errorf("[DiskIO] GetGauge err: %s", err)
 		return nil, fmt.Errorf("[DiskIO] GetGauge err: %w", err)
 	}
 
 	nodeMeasure := value.(model.Vector)
 	if len(nodeMeasure) != 1 {
-		return nil, fmt.Errorf("[DiskIO] Invalid response, expected 1 value, got %d", len(nodeMeasure))
+		//klog.Errorf("[DiskIO] Invalid response, expected 1 value, got %d", len(nodeMeasure))
+		return nil, fmt.Errorf("[DiskIO] query invalid response, expected 1 value, got %d", len(nodeMeasure))
 	}
 	return nodeMeasure[0], nil
 }
@@ -49,10 +51,10 @@ func (p *PromDiskIOHandle) GetGauge(node string) (*model.Sample, error) {
 func (p *PromDiskIOHandle) query(promQL string) (model.Value, error) {
 	results, warnings, err := p.client.Query(context.Background(), promQL, time.Now())
 	if err != nil {
-		klog.Errorf("[DiskIO] Error querying: %v\n", err)
+		klog.Errorf("[DiskIO] query err: %v\n", err)
 	}
 	if len(warnings) > 0 {
-		klog.Warningf("[DiskIO] Warnings querying: %v\n", warnings)
+		klog.Warningf("[DiskIO] query warnings: %v\n", warnings)
 	}
 
 	return results, err
