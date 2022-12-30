@@ -25,7 +25,7 @@ spec:
           key: "node-role.kubernetes.io/oam"
           operator: "Exists"
       dnsPolicy: ClusterFirst
-      hostNetwork: true
+      #hostNetwork: true
       serviceAccountName: prometheus-scheduler
       securityContext:
         runAsUser: 0

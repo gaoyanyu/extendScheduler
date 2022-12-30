@@ -62,7 +62,7 @@ data:
         pluginConfig:
           - name: "DiskIO"
             args:
-              ip: "http://prometheus-scheduler.kube-system.svc.cluster.local:9090"
+              ip: "http://prometheus-scheduler.kube-system.svc.cluster.local:9190"
               deviceName: "eth0"
               timeRange: 60
 ---
