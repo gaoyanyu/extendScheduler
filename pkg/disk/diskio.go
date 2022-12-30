@@ -70,7 +70,7 @@ func (d *DiskIO) NormalizeScore(ctx context.Context, state *framework.CycleState
 		scores[i].Score = framework.MaxNodeScore - (node.Score * 100 / higherScore)
 	}
 
-	klog.Infof("[DiskIO Plugin] Nodes final score: %v", scores)
+	klog.Infof("[DiskIO NormalizeScore for (%s:%s)] Nodes final score: %v", pod.Name, pod.Namespace, scores)
 	return nil
 }
 
@@ -78,10 +78,10 @@ func (d *DiskIO) Score(ctx context.Context, state *framework.CycleState, p *core
 	nodeDiskIO, err := d.prometheus.GetGauge(nodeName)
 	if err != nil {
 		//ignore it when getting node disk io err from prometheus, pod scheduling can't be blocked here.
-		klog.Errorf("[DiskIO] score for pod %s in namespace %s on node %s, err: %s", p.Name, p.Namespace, nodeName, err)
+		klog.Errorf("[DiskIO Score for (%s:%s)] on node %s, err: %s", p.Name, p.Namespace, nodeName, err)
 		return framework.MinNodeScore + 1, framework.NewStatus(framework.Success, fmt.Sprintf("get node disk io err: %s, but ignore", err))
 	}
 	diskIO := int64(nodeDiskIO.Value)
-	klog.Infof("[DiskIO Plugin] node '%s' diskIO: %d", nodeName, diskIO)
+	klog.Infof("[DiskIO Score for (%s:%s)] node '%s' diskIO: %d", p.Name, p.Namespace, nodeName, diskIO)
 	return diskIO, nil
 }
