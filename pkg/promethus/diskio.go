@@ -36,13 +36,11 @@ func NewDiskIOProme(ip string, timeRange time.Duration) *PromDiskIOHandle {
 func (p *PromDiskIOHandle) GetGauge(node string) (*model.Sample, error) {
 	value, err := p.query(fmt.Sprintf(nodeDiskIOQueryTemplate, node, p.timeRange, node, p.timeRange))
 	if err != nil {
-		//klog.Errorf("[DiskIO] GetGauge err: %s", err)
 		return nil, fmt.Errorf("[DiskIO] GetGauge err: %w", err)
 	}
 
 	nodeMeasure := value.(model.Vector)
 	if len(nodeMeasure) != 1 {
-		//klog.Errorf("[DiskIO] Invalid response, expected 1 value, got %d", len(nodeMeasure))
 		return nil, fmt.Errorf("[DiskIO] query invalid response, expected 1 value, got %d", len(nodeMeasure))
 	}
 	return nodeMeasure[0], nil

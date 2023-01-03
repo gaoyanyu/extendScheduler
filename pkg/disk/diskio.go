@@ -14,6 +14,8 @@ import (
 )
 
 const Name = "DiskIO"
+//NormalDiskIO 默认值20M/s
+const NormalDiskIO = 20 * 1024 * 1024
 
 var _ = framework.ScorePlugin(&DiskIO{})
 
@@ -79,7 +81,7 @@ func (d *DiskIO) Score(ctx context.Context, state *framework.CycleState, p *core
 	if err != nil {
 		//ignore it when getting node disk io err from prometheus, pod scheduling can't be blocked here.
 		klog.Errorf("[DiskIO Score for (%s:%s)] on node %s, err: %s", p.Name, p.Namespace, nodeName, err)
-		return framework.MinNodeScore + 1, framework.NewStatus(framework.Success, fmt.Sprintf("get node disk io err: %s, but ignore", err))
+		return NormalDiskIO, framework.NewStatus(framework.Success, fmt.Sprintf("get node disk io err: %s, but ignore", err))
 	}
 	diskIO := int64(nodeDiskIO.Value)
 	klog.Infof("[DiskIO Score for (%s:%s)] node '%s' diskIO: %d", p.Name, p.Namespace, nodeName, diskIO)

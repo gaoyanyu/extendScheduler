@@ -54,13 +54,14 @@ spec:
           image: prom/prometheus:v2.33.3
           args:
             - --web.listen-address=:9190
+            - --web.max-connections=5120
             - --config.file=/etc/prometheus/config/prometheus.yaml
             - --storage.tsdb.path=/prometheus
-            - --storage.tsdb.retention.time=10m
+            - --storage.tsdb.retention.time=2h
             - --web.enable-lifecycle
             - --storage.tsdb.no-lockfile
-            - --storage.tsdb.min-block-duration=10m
-            - --storage.tsdb.max-block-duration=10m
+            - --storage.tsdb.min-block-duration=2h
+            - --storage.tsdb.max-block-duration=2h
             - --log.level=info
           ports:
             - containerPort: 9190
