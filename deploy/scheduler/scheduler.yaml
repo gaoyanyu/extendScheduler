@@ -26,4 +26,4 @@ profiles:
           ip: "http://prometheus-scheduler.kube-system.svc.cluster.local:9190"
           #ip: "http://thanos-query.oam-system.svc.cluster.local:9090"
           deviceName: "eth0"
-          timeRange: 30
+          timeRange: 40
